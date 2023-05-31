@@ -1,2 +1,2 @@
-from .twofas_cli import *
-from .crypt import *
+from .twofas_cli import * # NOQA
+from .crypt import * # NOQA

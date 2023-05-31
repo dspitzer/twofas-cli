@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-from twofas_cli.common import *
+from twofas_cli.common import PRIVATE_KEY_FILE, PUBLIC_KEY_FILE
 
 
 def generate_key_pair():

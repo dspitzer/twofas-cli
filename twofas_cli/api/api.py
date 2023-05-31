@@ -12,7 +12,8 @@ class TwoFasApi:
     API_DEFAULT_BASE_URL = 'https://api2.2fas.com'
     WS_DEFAULT_BASE_URL = 'wss://ws.2fas.com'
 
-    def __init__(self, api_base_url: str = API_DEFAULT_BASE_URL, ws_base_url: str = WS_DEFAULT_BASE_URL):
+    def __init__(self, api_base_url: str = API_DEFAULT_BASE_URL, 
+                 ws_base_url: str = WS_DEFAULT_BASE_URL):
         self.headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -57,26 +58,29 @@ class TwoFasApi:
         return self.process_response(res)
 
     def remove_paired_device(self, ext_id, device_id):
-        res = requests.delete(f'{self.api_base_url}/browser_extensions/{ext_id}/devices/{device_id}',
-                              headers=self.headers)
+        res = requests.delete(f'{self.api_base_url}/browser_extensions/{ext_id}/devices'
+                              f'/{device_id}', headers=self.headers)
         return self.process_response(res)
 
     def request2_fa_token(self, ext_id, domain):
-        res = requests.post(f'{self.api_base_url}/browser_extensions/{ext_id}/commands/request_2fa_token',
+        res = requests.post(f'{self.api_base_url}/browser_extensions/{ext_id}/commands'
+                            f'/request_2fa_token',
                             headers=self.headers, data=json.dumps({"domain": domain}))
         return self.process_response(res)
 
     def close2_fa_request(self, ext_id, request_id, status=True):
         data = {"status": "completed" if status else "terminated"}
         res = requests.post(
-            f'{self.api_base_url}/browser_extensions/{ext_id}/2fa_requests/{request_id}/commands/close_2fa_request',
+            f'{self.api_base_url}/browser_extensions/{ext_id}/2fa_requests/{request_id}'
+            f'/commands/close_2fa_request',
             headers=self.headers,
             data=json.dumps(data))
         return self.process_response(res)
 
     def fetch_2fa_token(self, token_request_id: str, extension_id: str) -> str:
         with ws.connect(
-                f'{self.ws_base_url}/browser_extensions/{extension_id}/2fa_requests/{token_request_id}', ) as socket:
+                f'{self.ws_base_url}/browser_extensions/{extension_id}/2fa_requests'
+                f'/{token_request_id}', ) as socket:
             while True:
                 data = json.loads(socket.recv())
                 if data["event"] == "browser_extensions.device.2fa_response":

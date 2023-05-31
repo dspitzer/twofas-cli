@@ -12,6 +12,7 @@ setup(
     author_email="inmost-chimps-0j@icloud.com",
     description="Unofficial CLI tool for 2FAS using the browser extension api",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     license="BSD",
     keywords="2fas twofas",
     url="https://packages.python.org/twofas-cli",
@@ -19,7 +20,6 @@ setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "Topic :: Utilities",
-        "Environment :: Console (Text Based)"
         "License :: OSI Approved :: BSD License",
     ],
     python_requires='>=3.7',

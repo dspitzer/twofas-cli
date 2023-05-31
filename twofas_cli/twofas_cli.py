@@ -1,12 +1,14 @@
 import re
 import signal
 import sys
+import os
 
 import click
 
 from . import crypt
 from .api import TwoFasApi
-from .common import *
+from .common import get_settings_dir, get_extension_id, BARCODE_FILE, \
+    PRIVATE_KEY_FILE, EXTENSION_ID_FILE, PUBLIC_KEY_FILE
 
 
 @click.group(name="test")
@@ -15,11 +17,12 @@ def cli():
 
 
 @click.command('register', help='Register with 2FAS as a new "browser extension"')
-@click.option('--name', default=f'2FAS CLI {os.uname().sysname}', help='The name that you want displayed for this '
-                                                                       'CLI integration on your mobile device',
+@click.option('--name', default=f'2FAS CLI {os.uname().sysname}', 
+              help='The name that you want displayed for this CLI integration on your '
+                   'mobile device',
               show_default=True, prompt=True)
-@click.option('--api-base_url', default=TwoFasApi.API_DEFAULT_BASE_URL, help='Base URL for the 2FAS REST API',
-              show_default=True)
+@click.option('--api-base_url', default=TwoFasApi.API_DEFAULT_BASE_URL,
+              help='Base URL for the 2FAS REST API', show_default=True)
 def new(api_base_url: str, name: str):
     crypt.generate_key_pair()
     api = TwoFasApi(api_base_url)
@@ -28,21 +31,25 @@ def new(api_base_url: str, name: str):
     extension_id = ext['id']
     # Assert that extension_id is a valid uuid
     click.echo(f'Extension ID: {extension_id}')
-    get_settings_dir().joinpath('extension_id').write_text(extension_id, encoding='utf-8')
+    get_settings_dir().joinpath('extension_id').write_text(extension_id, 
+                                                           encoding='utf-8')
     barcode_file = generate_barcode(api.generate_qr_link(extension_id))
-    click.echo(f"Please scan the QR code image found under '{barcode_file}' with your 2FAS mobile app "
-               f"(under  Settings -> 'Browser extension')")
+    click.echo(f"Please scan the QR code image found under '{barcode_file}' with your "
+               f"2FAS mobile app (under  Settings -> 'Browser extension')")
 
 
 @click.command('get', help='Fetch a 2FA token for a website or service')
-@click.option('--domain', help='Full URL of the website you want to get the 2FA token for', type=str)
-@click.option('--identifier', help='Instead of a domain, you can also set a custom identifier that you can associate '
-                                   'with a 2FA code on your mobile device. Only ASCII letters, whitespace and the '
-                                   'following symbols are allowed: -.', type=str)
-@click.option('--api-base-url', default=TwoFasApi.API_DEFAULT_BASE_URL, help='Base URL for the 2FAS REST API',
-              show_default=True)
-@click.option('--ws-base-url', default=TwoFasApi.WS_DEFAULT_BASE_URL, help='Base URL for the 2FAS Websockets API',
-              show_default=True)
+@click.option('--domain', help='Full URL of the website you want to get the 2FA token '
+                               'for', type=str)
+@click.option('--identifier', 
+              help='Instead of a domain, you can also set a custom identifier that you '
+                   'can associate with a 2FA code on your mobile device. Only ASCII '
+                   'letters, whitespace and the following symbols are allowed: -.',
+              type=str)
+@click.option('--api-base-url', default=TwoFasApi.API_DEFAULT_BASE_URL, 
+              help='Base URL for the 2FAS REST API', show_default=True)
+@click.option('--ws-base-url', default=TwoFasApi.WS_DEFAULT_BASE_URL, 
+              help='Base URL for the 2FAS Websockets API', show_default=True)
 def get(domain: str, identifier: str, api_base_url: str, ws_base_url: str):
     check_if_registered() or sys.exit(1)
     if not domain and not identifier:
@@ -64,7 +71,8 @@ def get(domain: str, identifier: str, api_base_url: str, ws_base_url: str):
 
     token_request_id = response['token_request_id']
     if response['status'] != 'pending':
-        click.echo(f'Invalid response status from TWOFAS: {response["status"]}', err=True)
+        click.echo(f'Invalid response status from TWOFAS: {response["status"]}', 
+                   err=True)
         sys.exit(1)
 
     # noinspection PyUnusedLocal
@@ -75,7 +83,7 @@ def get(domain: str, identifier: str, api_base_url: str, ws_base_url: str):
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    click.echo(f'Waiting for approval from 2FAS mobile app...', err=True)
+    click.echo('Waiting for approval from 2FAS mobile app...', err=True)
     click.echo(api.fetch_2fa_token(token_request_id, extension_id))
     api.close2_fa_request(extension_id, token_request_id)
 
@@ -86,8 +94,8 @@ def devices():
 
 
 @click.command("list", help="List all paired mobile devices")
-@click.option('--api-base-url', default=TwoFasApi.API_DEFAULT_BASE_URL, help='Base URL for the 2FAS REST API',
-              show_default=True)
+@click.option('--api-base-url', default=TwoFasApi.API_DEFAULT_BASE_URL, 
+              help='Base URL for the 2FAS REST API', show_default=True)
 def list_devices(api_base_url: str):
     check_if_registered() or sys.exit(1)
     api = TwoFasApi(api_base_url)
@@ -97,10 +105,12 @@ def list_devices(api_base_url: str):
         click.echo(f'{device["id"]}  {device["name"]}')
 
 
-@click.command("delete", help="Delete a mobile device pairing. Pass the device ID of the mobile device pairing to "
-                              "delete (use `twofas-cli list` to see a list)")
+@click.command("delete", help="Delete a mobile device pairing. Pass the device ID of "
+                              "the mobile device pairing to delete (use "
+                              "`twofas-cli list` to see a list)")
 @click.argument('device-id', type=str)
-@click.option('--api-base-url', default=TwoFasApi.API_DEFAULT_BASE_URL, help='Base URL for the 2FAS REST API',
+@click.option('--api-base-url', default=TwoFasApi.API_DEFAULT_BASE_URL,
+              help='Base URL for the 2FAS REST API',
               show_default=True)
 def delete_device(device_id: str, api_base_url: str):
     check_if_registered() or sys.exit(1)
@@ -119,7 +129,8 @@ def generate_barcode(barcode_link: str):
 
 
 def check_if_registered() -> bool:
-    if not PRIVATE_KEY_FILE.exists() or not PUBLIC_KEY_FILE.exists() or not EXTENSION_ID_FILE.exists():
+    if not PRIVATE_KEY_FILE.exists() or not PUBLIC_KEY_FILE.exists() \
+            or not EXTENSION_ID_FILE.exists():
         click.echo('Please run "twofas-cli register" first', err=True)
         return False
     return True

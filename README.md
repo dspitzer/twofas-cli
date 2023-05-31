@@ -9,7 +9,7 @@ second factor via TOTPs.
 Install via pip from PyPi:
 
 ```shell
-#TODO: Add pip install command
+pip install twofas-cli
 ```
 
 ## Usage
