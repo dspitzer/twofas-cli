@@ -7,7 +7,7 @@ def get_settings_dir():
     settings_dir = (Path(xdg_config_home) if xdg_config_home else 
                     Path.home().joinpath('.config'))\
         .joinpath('twofas-cli')
-    settings_dir.mkdir(parents=False, exist_ok=True)
+    settings_dir.mkdir(parents=True, exist_ok=True)
     return settings_dir
 
 
