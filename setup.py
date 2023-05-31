@@ -22,7 +22,7 @@ setup(
         "Environment :: Console (Text Based)"
         "License :: OSI Approved :: BSD License",
     ],
-    python_requires='>=3.10',
+    python_requires='>=3.7',
     install_requires=[
         'Click', 'requests', 'cryptography', 'pyqrcode', 'pypng', 'websockets'
     ],
