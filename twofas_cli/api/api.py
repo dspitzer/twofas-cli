@@ -4,6 +4,7 @@ import json
 import click
 import requests
 import websockets.sync.client as ws
+from requests import Response
 
 from twofas_cli.crypt import get_public_key_spki, decrypt
 
@@ -22,7 +23,7 @@ class TwoFasApi:
         self.ws_base_url = ws_base_url
 
     @staticmethod
-    def process_response(res):
+    def process_response(res: Response) -> dict:
         if 200 <= res.status_code < 400:
             return res.json()
         else:
@@ -36,39 +37,40 @@ class TwoFasApi:
         return {
             'name': name,
             'browser_name': '2FAS CLI',
-            'browser_version': '0.0.2',
+            'browser_version': '0.0.3',
             'public_key': get_public_key_spki()
         }
 
-    def create_extension_instance(self, browser_name: str):
+    def create_extension_instance(self, browser_name: str) -> dict:
         res = requests.post(f'{self.api_base_url}/browser_extensions',
                             headers=self.headers,
                             data=json.dumps(self.create_browser_info(browser_name)))
         return self.process_response(res)
 
-    def update_browser_extension(self, ext_id: str, browser_name: str):
+    def update_browser_extension(self, ext_id: str, browser_name: str) -> dict:
         res = requests.put(f'{self.api_base_url}/browser_extensions/{ext_id}',
                            headers=self.headers,
                            data=json.dumps(self.create_browser_info(browser_name)))
         return self.process_response(res)
 
-    def get_all_paired_devices(self, ext_id):
+    def get_all_paired_devices(self, ext_id: str) -> dict:
         res = requests.get(f'{self.api_base_url}/browser_extensions/{ext_id}/devices',
                            headers=self.headers)
         return self.process_response(res)
 
-    def remove_paired_device(self, ext_id, device_id):
+    def remove_paired_device(self, ext_id: str, device_id: str) -> dict:
         res = requests.delete(f'{self.api_base_url}/browser_extensions/{ext_id}/devices'
                               f'/{device_id}', headers=self.headers)
         return self.process_response(res)
 
-    def request2_fa_token(self, ext_id, domain):
+    def request2_fa_token(self, ext_id: str, domain: str) -> dict:
         res = requests.post(f'{self.api_base_url}/browser_extensions/{ext_id}/commands'
                             f'/request_2fa_token',
                             headers=self.headers, data=json.dumps({"domain": domain}))
         return self.process_response(res)
 
-    def close2_fa_request(self, ext_id, request_id, status=True):
+    def close2_fa_request(self, ext_id: str, request_id: str, status: bool = True) \
+            -> dict:
         data = {"status": "completed" if status else "terminated"}
         res = requests.post(
             f'{self.api_base_url}/browser_extensions/{ext_id}/2fa_requests/{request_id}'
@@ -91,5 +93,5 @@ class TwoFasApi:
                     click.echo(f'Unknown event: {data["event"]}', err=True)
 
     @staticmethod
-    def generate_qr_link(browser_ext_id):
+    def generate_qr_link(browser_ext_id: str):
         return f'twofas_c://{browser_ext_id}'

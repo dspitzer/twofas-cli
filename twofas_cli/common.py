@@ -12,12 +12,10 @@ def get_settings_dir():
 
 
 def get_extension_id():
-    settings_dir = get_settings_dir()
-    extension_id_file = settings_dir.joinpath('extension_id')
-    return extension_id_file.read_text(encoding='utf-8')
+    return EXTENSION_ID_FILE.read_text(encoding='utf-8')
 
 
 PRIVATE_KEY_FILE = get_settings_dir().joinpath('private_key.pem')
 PUBLIC_KEY_FILE = get_settings_dir().joinpath('public_key.pem')
 EXTENSION_ID_FILE = get_settings_dir().joinpath('extension_id')
-BARCODE_FILE = get_settings_dir().joinpath('barcode.png')
+QRCODE_FILE = get_settings_dir().joinpath('qrcode.png')

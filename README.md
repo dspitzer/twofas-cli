@@ -24,6 +24,6 @@ twofas-cli register
 ```
 
 After running this command successfully you should see a directory containing a QR code image called 
-`barcode.png`. Open it and scan it using your 2FAS app.
+`qrcode.png`. Open it and scan it using your 2FAS app.
 
 Afterward, you can type `twofas-cli get --help` to see the available options for retrieving 2fa codes.

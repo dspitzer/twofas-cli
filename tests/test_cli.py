@@ -1,8 +1,8 @@
-def test_barcode_generation():
-    from twofas_cli import generate_barcode
-    from twofas_cli import BARCODE_FILE
-    generate_barcode('https://example.com')
-    assert BARCODE_FILE.exists(), "Barcode file should exist after generation"
+def test_qrcode_generation():
+    from twofas_cli import generate_qrcode
+    from twofas_cli import QRCODE_FILE
+    generate_qrcode('https://example.com')
+    assert QRCODE_FILE.exists(), "Barcode file should exist after generation"
 
 
 def test_generate_keypair():
