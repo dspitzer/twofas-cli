@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="twofas-cli",
-    version="0.0.3",
+    version="0.1.0",
     author="dspd",
     author_email="inmost-chimps-0j@icloud.com",
     description="Unofficial CLI tool for 2FAS using the browser extension api",
