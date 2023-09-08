@@ -62,7 +62,9 @@ def get(domain: str, identifier: str, api_base_url: str, ws_base_url: str):
     if identifier:
         domain = re.sub(r'[^a-zA-Z0-9 -.]', '', identifier.strip()).lower()
         domain = 'https://' + domain.replace(' ', '.') + '.2fa.invalid'
-
+    elif not re.match(r'https?://', domain):
+        domain = 'https://' + domain
+        
     api = TwoFasApi(api_base_url, ws_base_url)
     extension_id = get_extension_id()
     response = api.request2_fa_token(extension_id, domain)
